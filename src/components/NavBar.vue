@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue"
-const active = ref(0)
-
-const onClickLeft = () => history.back()
-const onClickRight = () => showToast("按钮")
 </script>
 
 <template>
