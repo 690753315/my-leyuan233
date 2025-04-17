@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, shallowReadonly } from "vue"
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from "vue"
 import { toRefs } from "vue"
 import { useRoute } from "vue-router"
 
 import Overlay from "@/components/Overlay.vue"
 
 import { getList } from "./utils"
-import { showToast } from "vant"
+import { showToast, PullRefresh } from "vant"
+
+import emitter from "@/utils/mitt"
 
 const route = useRoute()
 const { symbol } = toRefs(route.query)
@@ -108,9 +110,10 @@ let gapH = 6 // 间距
 
 // 可视区域宽度
 const w = document.body.clientWidth
-const width = w / 2 - 5
+const width = (w / 2 / w) * 100
+
 // 列数  一行能放下几个
-const column = Math.floor(w / width)
+const column = Math.floor(100 / width)
 
 const init = (list: any[]) => {
   heightList.value = []
@@ -130,28 +133,28 @@ const init = (list: any[]) => {
       heightList.value.push(item.height)
     } else {
       let currentH = heightList.value[0]
-      let index = 0
+      let index = 0 // 找到最小的高度的列
 
-      // 找到最小的高度的列
       heightList.value.forEach((h, i) => {
+        console.log({ h, currentH })
         if (currentH > h) {
-          // currentH 就是 heightList[i]
+          // currentH 就是 heightList.value[i]
           currentH = h
           index = i
         }
       })
 
-      // console.log({ index, width })
+      console.log({ index, width, p: index % 2 === 0 ? 0 : 50 })
 
       // 把当前的元素放到最小高度的列中
       waterList.push({
         ...item,
-        left: index * width,
+        left: index % 2 === 0 ? 0 : 50,
         top: currentH + gapH
       })
 
       // 更新最小高度的列的高度
-      heightList.value[index] = currentH + item.height + gapH
+      heightList.value[index] = currentH + gapH + item.height
     }
   }
 }
@@ -166,8 +169,17 @@ const handleShow: (type: number, src: string) => void = (type, src) => {
   overlayRef.value?.handleShow(type, src)
 }
 
+const PullRefreshRef = ref<InstanceType<typeof PullRefresh>>()
 const refreshing = ref(false)
 const onRefresh = () => {
+  console.log(
+    PullRefreshRef.value?.$el.scrollTo({
+      top: 0,
+      behavior: "smooth",
+      duration: 500
+    })
+  )
+
   setTimeout(() => {
     showToast("刷新成功")
 
@@ -178,6 +190,12 @@ const onRefresh = () => {
 
     mylist.value = [...getList(mylist.value.length, symbol.value as string)]
     init(mylist.value)
+
+    if (mylist.value.length >= 50) {
+      finished.value = true
+    } else {
+      finished.value = false
+    }
   }, 1500)
 }
 
@@ -214,7 +232,15 @@ onMounted(() => {
 
   if (mylist.value.length >= 50) {
     finished.value = true
+  } else {
+    finished.value = false
   }
+
+  emitter.on("refresh", onRefresh)
+})
+
+onBeforeUnmount(() => {
+  emitter.off("refresh", onRefresh)
 })
 </script>
 
@@ -222,11 +248,16 @@ onMounted(() => {
   <div class="home bg-white py-2">
     <Overlay ref="overlayRef" />
 
-    <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
+    <van-pull-refresh
+      ref="PullRefreshRef"
+      v-model="refreshing"
+      @refresh="onRefresh"
+    >
       <van-list
         v-model:loading="loading"
         :finished="finished"
         finished-text="没有更多了"
+        loading-text="加载中..."
         @load="onLoad"
       >
         <div class="wrap p-1 h-full" :style="{ height: currentH + 'px' }">
@@ -236,7 +267,7 @@ onMounted(() => {
             class="items rounded-md flex flex-col bg-white"
             :style="{
               height: item.height + 'px',
-              left: item.left + 'px',
+              left: item.left + 'vw',
               top: item.top + 'px'
               // background: item.background
             }"
@@ -261,10 +292,13 @@ onMounted(() => {
                 {{ item.title }}
               </div>
               <div class="text-sm my-[4] text-[12px]">
-                {{ item.about }}
+                {{ item.about }} --{{ item.left }}
               </div>
               <div class="flex justify-between items-center text-[12px]">
-                <div>{{ item.username }}</div>
+                <div class="flex items-center">
+                  <van-icon name="contact" class="mt-[2px] mr-1" />
+                  <div>{{ item.username }}</div>
+                </div>
                 <div class="flex items-center">
                   <van-icon name="good-job-o" class="mt-[2px] mr-1" />
                   <span>{{ item.zan }}</span>
@@ -274,21 +308,6 @@ onMounted(() => {
           </div>
         </div>
       </van-list>
-
-      <!-- <van-list
-        v-model:loading="loading"
-        :finished="finished"
-        finished-text="没有更多了"
-        :immediate-check="false"
-        @load="onLoad"
-      >
-        <van-cell
-          v-for="item in mylist"
-          :key="item.title"
-          :title="item.title"
-        />
-      </van-list> -->
-      <template #success></template>
     </van-pull-refresh>
   </div>
 </template>
@@ -307,6 +326,13 @@ onMounted(() => {
   ::v-deep(.van-pull-refresh) {
     overflow: auto;
     flex: 1;
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   ::v-deep(.van-list) {
@@ -319,8 +345,8 @@ onMounted(() => {
     .items {
       position: absolute;
 
-      width: calc(100vw / 2 - 10px);
-      margin: 0 5px;
+      width: calc(100vw / 2 - 2vw);
+      margin: 0 1vw;
 
       font-weight: bold;
     }

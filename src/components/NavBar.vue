@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue"
 import { useTodo } from "@/hooks/useTodo"
+import emitter from "@/utils/mitt"
 
 const todo = useTodo()
+
+const onClick = () => {
+  emitter.emit("refresh")
+}
 </script>
 
 <template>
   <van-nav-bar title="" safe-area-inset-top>
     <template #left>
-      <div class="text-xl font-bold">发现</div>
+      <div class="text-xl font-bold" @click="onClick">发现</div>
     </template>
     <template #right>
       <van-icon name="search" size="30" color="#212121" @click="todo" />
