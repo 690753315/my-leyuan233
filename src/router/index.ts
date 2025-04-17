@@ -1,13 +1,19 @@
 import { createRouter, createWebHashHistory } from "vue-router"
-import Community from "@/views/community/Community.vue"
-// import About from "../views/About.vue"
-// import List from "../views/List.vue"
-// import Detail from "../views/Detail.vue"
+import { showFailToast } from "vant"
 
 const routes = [
   {
     path: "/",
-    component: Community
+    component: () => import("@/views/community/Community.vue")
+  },
+  {
+    path: "/404",
+    component: () => import("@/views/error/Page404.vue")
+  },
+  {
+    path: "/:pathMatch(.*)*", // 匹配所有未识别的路径
+    name: "NotFound",
+    redirect: "/404"
   }
   // {
   //   path: "/about",
@@ -26,6 +32,27 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory("/my-leyuan233/"),
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  // console.log(to, from)
+  const { path, query } = to
+
+  if (path === "/") {
+    if (!query.symbol) {
+      next({
+        ...to,
+        query: {
+          ...query,
+          symbol: "1"
+        },
+        replace: true
+      })
+      return
+    }
+  }
+
+  next()
 })
 
 export default router

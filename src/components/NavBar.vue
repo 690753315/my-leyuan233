@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue"
+import { useTodo } from "@/hooks/useTodo"
+
+const todo = useTodo()
 </script>
 
 <template>
@@ -8,7 +11,7 @@ import { ref, reactive, onMounted, computed, watch } from "vue"
       <div class="text-xl font-bold">发现</div>
     </template>
     <template #right>
-      <van-icon name="search" size="30" color="#212121" />
+      <van-icon name="search" size="30" color="#212121" @click="todo" />
     </template>
   </van-nav-bar>
 </template>

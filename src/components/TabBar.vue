@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue"
+import { useTodo } from "@/hooks/useTodo"
+
+const todo = useTodo()
 const active = ref(1)
+
+const onChange = (index: number) => {
+  if (index !== 1) {
+    active.value = 1
+
+    todo()
+  }
+}
 </script>
 
 <template>
-  <div class="h-[50px]"></div>
+  <!-- <div class="h-[50px]"></div> -->
   <van-tabbar
     v-model="active"
     safe-area-inset-bottom
     active-color="#F46E23"
     inactive-color="#212121"
+    @change="onChange"
   >
     <van-tabbar-item icon="home-o">首页</van-tabbar-item>
     <van-tabbar-item icon="hotel-o">社区</van-tabbar-item>

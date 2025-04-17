@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, shallowReadonly } from "vue"
+import { toRefs } from "vue"
+import { useRoute } from "vue-router"
 
 import Overlay from "@/components/Overlay.vue"
 
+import { getList } from "./utils"
 import { showToast } from "vant"
 
-import { getList } from "./utils"
+const route = useRoute()
+const { symbol } = toRefs(route.query)
 
 // const list = [
 //   {
@@ -172,7 +176,7 @@ const onRefresh = () => {
     mylist.value = []
     waterList.length = 0
 
-    mylist.value = [...getList(mylist.value.length)]
+    mylist.value = [...getList(mylist.value.length, symbol.value as string)]
     init(mylist.value)
   }, 1500)
 }
@@ -185,7 +189,10 @@ const onLoad = () => {
   // 异步更新数据
   // setTimeout 仅做示例，真实场景中一般为 ajax 请求
   setTimeout(() => {
-    mylist.value = [...mylist.value, ...getList(mylist.value.length)]
+    mylist.value = [
+      ...mylist.value,
+      ...getList(mylist.value.length, symbol.value as string)
+    ]
     init(mylist.value)
 
     // 数据全部加载完成
@@ -199,7 +206,10 @@ const onLoad = () => {
 }
 
 onMounted(() => {
-  mylist.value = [...mylist.value, ...getList(mylist.value.length)]
+  mylist.value = [
+    ...mylist.value,
+    ...getList(mylist.value.length, symbol.value as string)
+  ]
   init(mylist.value)
 
   if (mylist.value.length >= 50) {
@@ -247,7 +257,7 @@ onMounted(() => {
             </div>
 
             <div class="px-1 py-1 font-normal">
-              <div class="ellipsis-2 text-sm">
+              <div class="ellipsis-2 text-sm font-bold">
                 {{ item.title }}
               </div>
               <div class="text-sm my-[4] text-[12px]">
