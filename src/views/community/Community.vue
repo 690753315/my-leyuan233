@@ -136,7 +136,6 @@ const init = (list: any[]) => {
       let index = 0 // 找到最小的高度的列
 
       heightList.value.forEach((h, i) => {
-        console.log({ h, currentH })
         if (currentH > h) {
           // currentH 就是 heightList.value[i]
           currentH = h
@@ -144,7 +143,7 @@ const init = (list: any[]) => {
         }
       })
 
-      console.log({ index, width, p: index % 2 === 0 ? 0 : 50 })
+      // console.log({ index, width, p: index % 2 === 0 ? 0 : 50 })
 
       // 把当前的元素放到最小高度的列中
       waterList.push({
@@ -172,13 +171,11 @@ const handleShow: (type: number, src: string) => void = (type, src) => {
 const PullRefreshRef = ref<InstanceType<typeof PullRefresh>>()
 const refreshing = ref(false)
 const onRefresh = () => {
-  console.log(
-    PullRefreshRef.value?.$el.scrollTo({
-      top: 0,
-      behavior: "smooth",
-      duration: 500
-    })
-  )
+  PullRefreshRef.value?.$el.scrollTo({
+    top: 0,
+    behavior: "smooth",
+    duration: 500
+  })
 
   setTimeout(() => {
     showToast("刷新成功")
@@ -202,7 +199,7 @@ const onRefresh = () => {
 const loading = ref(false)
 const finished = ref(false)
 const onLoad = () => {
-  console.log("onLoad")
+  // console.log("onLoad")
 
   // 异步更新数据
   // setTimeout 仅做示例，真实场景中一般为 ajax 请求

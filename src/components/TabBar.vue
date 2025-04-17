@@ -7,7 +7,6 @@ const todo = useTodo()
 const active = ref(1)
 
 const onChange = (index: number) => {
-  console.log(index)
   if (index !== 1) {
     active.value = 1
 
