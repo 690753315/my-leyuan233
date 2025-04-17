@@ -40,17 +40,25 @@ defineExpose<{ handleShow: (type: number, src: string) => void }>({
 </script>
 
 <template>
-  <van-overlay teleport="#app" :show="show" @click="show = false">
+  <van-overlay teleport="#app" :show="show" :duration="0" @click="show = false">
     <div
       class="px-4 w-full fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
       @click.stop
     >
-      <!-- <van-image
-          src="https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg"
-          fit="contain"
-        /> -->
+      <van-image
+        v-if="source.type === 0"
+        class="w-full rounded-md"
+        :src="source.src"
+        fit="contain"
+      />
 
-      <video class="w-full rounded-md" src="@/assets/1.mp4" autoplay controls />
+      <video
+        v-else
+        class="w-full rounded-md"
+        :src="source.src"
+        autoplay
+        controls
+      />
     </div>
   </van-overlay>
 </template>

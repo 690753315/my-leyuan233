@@ -10,5 +10,15 @@
   padding: 0;
 }
 
+.html {
+  max-width: 600px;
+}
+
+/* 禁止双击放大页面 */
+html,
+body {
+  touch-action: manipulation;
+}
+
 :root {
 }

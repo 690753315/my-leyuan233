@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed, watch } from "vue"
 // import { RouterView } from "vue-router"
-import { List, PullRefresh } from "vant"
 
 import TabBar from "@/components/TabBar.vue"
 import NavBar from "@/components/NavBar.vue"
