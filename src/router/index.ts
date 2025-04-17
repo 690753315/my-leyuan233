@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router"
-import { showFailToast } from "vant"
 
 const routes = [
   {
@@ -8,7 +7,7 @@ const routes = [
   },
   {
     path: "/404",
-    component: () => import("@/views/error/Page404.vue")
+    component: () => import("@/views/error/404.vue")
   },
   {
     path: "/:pathMatch(.*)*", // 匹配所有未识别的路径
