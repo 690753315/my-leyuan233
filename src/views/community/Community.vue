@@ -132,8 +132,10 @@ const init = (list: any[]) => {
       // 设置每一列当前的高度
       heightList.value.push(item.height)
     } else {
+      // 当前高度
       let currentH = heightList.value[0]
-      let index = 0 // 找到最小的高度的列
+      // 当前高度最小的列在heightList里的下标
+      let index = 0
 
       heightList.value.forEach((h, i) => {
         if (currentH > h) {
